@@ -3,7 +3,7 @@
 
 Please request a license for dco/c++ from christodoulou(at)stce.rwth-aachen.de to run this code. 
 
-## Defining Smoothed Functions via pybind
+## Integrating custom Smoothed Functions via pybind
 
 Custom functions can be defined in header-file source/pybind_integrated/smoothing_examples.hpp, and have to be exposed to pythoon in source/pybind_integrated/pybinder.cpp via pybind. They are then compiled into a python module. 
 
