@@ -16,8 +16,8 @@ find_package (Python3 COMPONENTS Development REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 
-# actual repo:
-find_package(dco_cpp_v3 REQUIRED) # -> DCO_CPP_INCLUDE_DIR, (DCP_CPP_LIBRARY)
+
+find_package(dco_cpp_v3 REQUIRED) 
 
 # 1) compile the smoothing-part
 add_subdirectory(overload_smooth) # OverSmoothLibrary (library) in here
