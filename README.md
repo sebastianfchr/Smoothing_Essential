@@ -37,13 +37,10 @@ cd tfops
 and run the tensorflow-bindings, where gradient-descent is performed.
 
 
-## Defining more functions
+## Using functions in python
 
-In /source/pybind_integrated there are the files pybinder.cpp and smoothing_examples.hpp. We can edit them for integrating new functions.
-
-In the python-file in the project-directory, you can import the newly bound functions from the module as follows: 
+For a python-file in the project-directory, one can import the newly bound functions from the module as follows: 
 ```python
 from source.build.pybind_integrated.Smoothing import set_smfactor, cb2
 ```
 (to import functions 'set_smfactor' and 'cb2')
-
