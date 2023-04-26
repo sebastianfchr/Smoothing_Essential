@@ -1,6 +1,6 @@
 add_library(OverSmoothLibrary branchTape.cpp stype.cpp styperesult.cpp )
 
-# for the online-case, all we have to do is:
+# for the pulled version, all we have to do is:
 # target_include_directories(OverSmoothLibrary PUBLIC ${DCO_CPP_INCLUDE_DIR})
 
 # ====================== manual case ! ===============================
