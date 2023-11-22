@@ -25,8 +25,14 @@ add_subdirectory(overload_smooth) # OverSmoothLibrary (library) in here
 
 # Uses dco!
 list(APPEND EXTRA_LIBS OverSmoothLibrary) # EXTRA_LIBS used by pybind_integrated
-add_subdirectory(pybind_integrated) 
-add_subdirectory(tf_integrated) 
+add_subdirectory(pybind_integrated)
+
+# make tf-integration optional
+# (otherwise, we'd have to require a tensorflow installation)
+set(INTEGRATE_TF 0)
+if(INTEGRATE_TF)
+    add_subdirectory(tf_integrated) 
+endif()
 
 # (absolutely necessary for pyBind?)
 find_package(Python REQUIRED)
