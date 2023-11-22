@@ -31,7 +31,7 @@ add_subdirectory(pybind_integrated)
 # (otherwise, we'd have to require a tensorflow installation)
 set(INTEGRATE_TF 0)
 if(INTEGRATE_TF)
-    add_subdirectory(tf_integrated) 
+    add_subdirectory(tf_integrated)
 endif()
 
 # (absolutely necessary for pyBind?)
