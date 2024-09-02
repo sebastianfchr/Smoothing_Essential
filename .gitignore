@@ -1,7 +1,4 @@
-/build
+build/*
+build
+.vscode
 **/__pycache__
-*__pycache__
-**/.svg
-**/.pdf
-/docker
-zplots
