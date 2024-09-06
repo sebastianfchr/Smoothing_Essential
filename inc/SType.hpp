@@ -122,3 +122,15 @@ public:
 };
 
 
+// these can also be applied directly to SType!
+
+template<typename T> requires std::is_same_v<std::remove_cvref_t<T>, SOutType>
+auto value(T&& s) { return s.aggregated_value.value; }
+template<typename T> requires std::is_same_v<std::remove_cvref_t<T>, SOutType>
+auto derivative(T&& s) { return s.aggregated_value.derivative; }
+// template<typename T> requires (is_value_t_castable_stype_content_v<T> || is_numeric_stype_content_v<T> || is_boolean_t_castable_stype_content_v<T>)
+// auto&& derivative(T&& s) { return deriv(s.get_value()); }
+// template<typename T> requires (is_boolean_t_castable_stype_content_v<T>)
+// auto&& discrete(T&& s) { return disc(s.get_value()); }
+
+

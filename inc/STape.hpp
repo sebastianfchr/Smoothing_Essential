@@ -309,6 +309,9 @@ do {\
 } while (tape::get_tape_ptr()->tape_next_round());
 
 
+
+
+
 #define IF(XCOND)\
 if(SType(tape::get_tape_ptr()->make_split(XCOND)).valptr->discrete) 
 
