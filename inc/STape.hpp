@@ -298,15 +298,20 @@ do {\
 } while (tape::get_tape_ptr()->tape_next_round());
 
 // ================ this is interactive backprop. Whyever we need this... ==========
-#define BACKPROP_BEGIN()\
-do {\
-    tape::get_tape_ptr()->prepare_valtape();\
-    tape::get_tape_ptr()->function_body();\
-    tape::get_tape_ptr()->forward_backward_souttypes();\
+void backprop_smoothing_round() { 
+    tape::get_tape_ptr()->prepare_valtape();
+    tape::get_tape_ptr()->function_body();
+    tape::get_tape_ptr()->forward_backward_souttypes();
     tape::get_tape_ptr()->backprop();
+}
+
+#define BACKPROP_BEGIN()\
+    backprop_smoothing_round();
 
 #define BACKPROP_END()\
-} while (tape::get_tape_ptr()->tape_next_round());
+while (tape::get_tape_ptr()->tape_next_round()) {\
+    backprop_smoothing_round();\
+}
 
 
 
