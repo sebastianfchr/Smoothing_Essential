@@ -17,3 +17,8 @@ enable_testing()
 add_subdirectory(pybound)
 
 
+add_executable(function1 function1.cpp)
+target_link_libraries(function1 PUBLIC stapelib)
+add_executable(function2 function2.cpp)
+target_link_libraries(function2 PUBLIC stapelib)
+

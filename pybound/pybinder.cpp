@@ -150,43 +150,78 @@ std::tuple<double, double, double> ff3(double x1i, double x2i) {
 std::tuple<double, double> f1d(double x1i) {
 
     auto tape_ptr = tape::make_smart_tape_ptr();
+    
+	// short way of writing it!
+	SType<double> x1 = x1i;
+	// SType<double> x2 = 3;
+	SOutType o;
 
-    SOutType o;
-    SType<double> x1 = x1i;
+	SMOOTHING();
 
-    auto vglambda = [&](){
+        IF(x1 < 1.5) {
+            o = sin(x1);
 
-        // SType cond1 = tape::get_tape_ptr()->make_split(x1 > 3 && x1 < 5);  // even 2 unexpected spikes 
-        // SType cond1 = tape::get_tape_ptr()->make_split(x1 < 3 && x1 < 5 ); 
-        // SType cond1 = tape::get_tape_ptr()->make_split(x1 > 3 && x1 < 5 );  // TODO: unexpected spike at 3
-        SType cond1 = tape::get_tape_ptr()->make_split(x1 < 3  ); 
-        // TODO: DOES IS HAVE SOMETHING TO DO WITH ACTUAL VALUE ARRIVING AT SPLIT_OP?
-        if(cond1.valptr->discrete) {
-            if((tape::get_tape_ptr()->make_split(x1 < 1  )).valptr->discrete)
-                o = 0;
-            else {
-                o = 2;// 2*x1;
-            }
-        } else {                    // # ELSE&& x1 < 5
-            o = -3;//*x1;
+        } ELSE() {
+            o = cos(x1); //-x1*1;
+
         }
+		// IF(x1 < x2){
+		// 	o = x1*x1; // out_op doesn't want an lvalue. Or even downstream-funcs?
+		// } ELSE() {
+		// 	o = x1; 
+		// }
 
-    };
+	SMOOTHING_END();
 
-  o.seed(1);
+	o.seed(1);
 
-  do {
+	// double discrete_val = o.get_value().value; // 
 
-    tape::get_tape_ptr()->prepare_valtape();
-    vglambda();
-    tape::get_tape_ptr()->forward_backward_souttypes();    
-    tape::get_tape_ptr()->backprop();
+	// BACKPROP_BEGIN();
+	// BACKPROP_END();
 
-  } while(tape::get_tape_ptr()->tape_next_round());
+    BACKPROP();
+
+    return std::make_tuple(o.get_value().value, x1.get_value().partial);
+
+//     auto tape_ptr = tape::make_smart_tape_ptr();
+
+//     SOutType o;
+//     SType<double> x1 = x1i;
+
+//     auto vglambda = [&](){
+
+//         // SType cond1 = tape::get_tape_ptr()->make_split(x1 > 3 && x1 < 5);  // even 2 unexpected spikes 
+//         // SType cond1 = tape::get_tape_ptr()->make_split(x1 < 3 && x1 < 5 ); 
+//         // SType cond1 = tape::get_tape_ptr()->make_split(x1 > 3 && x1 < 5 );  // TODO: unexpected spike at 3
+//         SType cond1 = tape::get_tape_ptr()->make_split(x1 < 3  ); 
+//         // TODO: DOES IS HAVE SOMETHING TO DO WITH ACTUAL VALUE ARRIVING AT SPLIT_OP?
+//         if(cond1.valptr->discrete) {
+//             if((tape::get_tape_ptr()->make_split(x1 < 1  )).valptr->discrete)
+//                 o = 0;
+//             else {
+//                 o = 2;// 2*x1;
+//             }
+//         } else {                    // # ELSE&& x1 < 5
+//             o = -3;//*x1;
+//         }
+
+//     };
+
+//   o.seed(1);
+
+//   do {
+
+//     tape::get_tape_ptr()->prepare_valtape();
+//     vglambda();
+//     tape::get_tape_ptr()->forward_backward_souttypes();    
+//     tape::get_tape_ptr()->backprop();
+
+//   } while(tape::get_tape_ptr()->tape_next_round());
 
 
 
-  return std::make_tuple(o.get_value().value, x1.get_value().partial);
+//   return std::make_tuple(o.get_value().value, x1.get_value().partial);
 
 }
 

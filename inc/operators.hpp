@@ -53,10 +53,11 @@ struct binary_creator {
 
 template<typename Op, typename T> 
 struct unary_creator {
-    
-    // TODO : unary_value_op
 
-    // there's no comparison for unary 
+    template<typename T1>
+    static decltype(auto) create_val_op(T1&& x1) { return unary_value_op<Op, T, T1>(std::forward<T1>(x1)); }
+    template<typename T1>
+    static decltype(auto) create_val_op_pointer(T1&& x1) { return new unary_value_op<Op, T, T1>(std::forward<T1>(x1)); }
 
     template<typename T1>
     static decltype(auto) create_clause_op(T1&& x1) { return unary_clause_op<Op, T, T1>(std::forward<T1>(x1)); }
@@ -98,6 +99,8 @@ decltype(auto) operator-(T1&& x1, T2&& x2) {
     bo->evaluate();
     return SType(bo);
 }
+
+
 template<typename T1, typename T2> requires (is_stype_v<T1> || is_stype_v<T2>) //is_base_of_either<S, T1, T2>::value 
 decltype(auto) operator/(T1&& x1, T2&& x2) {
     // auto*&& bo = new binary_value_op<Divide, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
@@ -105,6 +108,33 @@ decltype(auto) operator/(T1&& x1, T2&& x2) {
     bo->evaluate();
     return SType(bo);
 }
+
+
+// =========== Value Ops unary ===============
+template<typename T1> requires (is_stype_v<T1>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) operator-(T1&& x1) {
+    // auto*&& bo = new binary_value_op<Divide, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    auto*&& bo = unary_creator<Negative, double>::create_val_op_pointer(std::forward<T1>(x1));
+    bo->evaluate();
+    return SType(bo);
+}
+
+template<typename T1> requires (is_stype_v<T1>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) sin(T1&& x1) {
+    // auto*&& bo = new binary_value_op<Divide, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    auto*&& bo = unary_creator<Sin, double>::create_val_op_pointer(std::forward<T1>(x1));
+    bo->evaluate();
+    return SType(bo);
+}
+
+template<typename T1> requires (is_stype_v<T1>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) cos(T1&& x1) {
+    // auto*&& bo = new binary_value_op<Divide, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    auto*&& bo = unary_creator<Cos, double>::create_val_op_pointer(std::forward<T1>(x1));
+    bo->evaluate();
+    return SType(bo);
+}
+
 
 // =========== Comparison ===========
 
@@ -117,8 +147,24 @@ decltype(auto) operator<(T1&& x1, T2&& x2) {
 }
 
 template<typename T1, typename T2> requires (is_stype_v<T1> || is_stype_v<T2>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) operator<=(T1&& x1, T2&& x2) {
+    auto*&& bo = new binary_comparison_op<Le, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    // auto*&& bo = binary_creator<Lt, double>::create_val_op_pointer<T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    bo->evaluate();  
+    return SType(bo);
+}
+
+template<typename T1, typename T2> requires (is_stype_v<T1> || is_stype_v<T2>) //is_base_of_either<S, T1, T2>::value 
 decltype(auto) operator>(T1&& x1, T2&& x2) {
     auto*&& bo = new binary_comparison_op<Gt, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    // auto*&& bo = binary_creator<Lt, double>::create_val_op_pointer<T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    bo->evaluate();  
+    return SType(bo);
+}
+
+template<typename T1, typename T2> requires (is_stype_v<T1> || is_stype_v<T2>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) operator>=(T1&& x1, T2&& x2) {
+    auto*&& bo = new binary_comparison_op<Ge, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
     // auto*&& bo = binary_creator<Lt, double>::create_val_op_pointer<T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
     bo->evaluate();  
     return SType(bo);

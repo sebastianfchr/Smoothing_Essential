@@ -33,6 +33,23 @@ struct Divide {
 };
 
 
+// =================  Arithmetic Unary =================
+struct Negative {
+    static decltype(auto) eval(auto&& x1) { return -x1; }
+    static decltype(auto) partial(auto&& x1, auto&& adjoint) { return -adjoint; }
+};
+
+struct Sin {
+    static decltype(auto) eval(auto&& x1) { return sin(x1); }
+    static decltype(auto) partial(auto&& x1, auto&& adjoint) { return cos(x1)*adjoint; }
+};
+
+struct Cos {
+    static decltype(auto) eval(auto&& x1) { return cos(x1); }
+    static decltype(auto) partial(auto&& x1, auto&& adjoint) { return -1*sin(x1)*adjoint; }
+};
+
+
 static long double smfactor = 1;
 void set_smfactor(long double f) { smfactor = f; }
 
@@ -66,12 +83,13 @@ struct Gt {
     static decltype(auto) partial_x1(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return sigmoid_righthigh_deriv(x1-x2) * adjoint; }
     static decltype(auto) partial_x2(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return -partial_x1(x1, x2, y, adjoint); }  
 };
-// struct Ge {
-//     static decltype(auto) eval_discrete(auto&& x1, auto&& x2) { return x1 >= x2; }
-//     static decltype(auto) eval_tendency(auto&& x1, auto&& x2) { return x1>=x2 ? sigmoid_righthigh(x1-x2) : 1-sigmoid_righthigh(x1-x2); }
-//     static decltype(auto) partial_x1(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return sigmoid_righthigh_deriv(x1-x2) * adjoint; }
-//     static decltype(auto) partial_x2(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return -partial_x1(x1, x2, y, adjoint); }  
-// };
+struct Ge {
+    static decltype(auto) eval_discrete(auto&& x1, auto&& x2) { return x1 >= x2; }
+    static decltype(auto) eval_tendency(auto&& x1, auto&& x2) { return sigmoid_righthigh(x1-x2); }
+    static decltype(auto) partial_x1(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return sigmoid_righthigh_deriv(x1-x2) * adjoint; }
+    static decltype(auto) partial_x2(auto&& x1, auto&& x2, auto&& y, auto&& adjoint) { return -partial_x1(x1, x2, y, adjoint); }  
+};
+
 
 // ================= Logical Binary =================
 struct And {
@@ -239,6 +257,36 @@ public:
         // Note: No need (and possibility) to backpropagate to numeric. Only bases of value_t, evaluable_op_t (or pointers to such)
         if constexpr(!is_numeric_v<UT1>) { maybe_deref(bot::_arg1).partial += Op::partial_x1(val(maybe_deref(bot::_arg1)), val(maybe_deref(bot::_arg2)), this->partial); }
         if constexpr(!is_numeric_v<UT2>) { maybe_deref(bot::_arg2).partial += Op::partial_x2(val(maybe_deref(bot::_arg1)), val(maybe_deref(bot::_arg2)), this->partial); }
+        // rvalues don't backpropagate on the tape. force them to do it internally here!
+        this->backprop_potential_member_args();
+        // if constexpr(!is_numeric_v<UT1>) { std::cout << "bv d " << maybe_deref(bot::_arg1).partial << " " << val(maybe_deref(bot::_arg1)) << std::endl; }
+        // if constexpr(!is_numeric_v<UT2>) { std::cout << "bv d " << maybe_deref(bot::_arg2).partial << " " << val(maybe_deref(bot::_arg2)) << std::endl; }
+    }
+};
+
+
+template<typename Op, typename T, typename T1> 
+requires (
+    (is_value_t_castable_stype_content_v<T1> || is_numeric_stype_content_v<T1> || is_numeric_v<T1> || derived_of_evaluable_value_op_or_pointer_v<T1> ) && 
+    (is_stype_v<T1> || derived_of_evaluable_value_op_or_pointer_v<T1>) 
+)
+class unary_value_op : public unary_op_template<T, T1>, public evaluable_value_op_t<T>  { 
+public:
+    // using base_value_type = value_t<T>;
+    using uot = unary_op_template<T, T1>;
+    using UT = typename uot::UT;
+
+    unary_value_op(T1&& arg1) : 
+        unary_op_template<T, T1>(std::forward<T1>(arg1)), evaluable_value_op_t<T>() {}
+
+    void evaluate() {
+        this->evaluate_potential_member_args(); // if args are rvalues, they aren't evaluated trough the tape!
+        this->value = Op::eval(val(maybe_deref(uot::_arg1))); 
+    }
+    void backprop() {
+        // Note: No need (and possibility) to backpropagate to numeric. Only bases of value_t, evaluable_op_t (or pointers to such)
+        if constexpr(!is_numeric_v<UT>) { maybe_deref(uot::_arg1).partial += Op::partial(val(maybe_deref(uot::_arg1)), this->partial); }
+        // if constexpr(!is_numeric_v<UT2>) { maybe_deref(bot::_arg2).partial += Op::partial_x2(val(maybe_deref(bot::_arg1)), val(maybe_deref(bot::_arg2)), this->partial); }
         // rvalues don't backpropagate on the tape. force them to do it internally here!
         this->backprop_potential_member_args();
         // if constexpr(!is_numeric_v<UT1>) { std::cout << "bv d " << maybe_deref(bot::_arg1).partial << " " << val(maybe_deref(bot::_arg1)) << std::endl; }

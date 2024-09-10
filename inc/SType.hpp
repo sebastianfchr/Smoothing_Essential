@@ -89,6 +89,11 @@ public:
     // numeric; direct  construction: push onto valtape, and set the valptr reg!   
     template<typename T> 
     SOutType& operator=(T&& op_or_stype_or_val) {
+        // TODO SEB: force T to be an op! If it is a value, it needs to be turned into one!
+        // TODO SEB: force T to be an op! If it is a value, it needs to be turned into one!
+        // TODO SEB: force T to be an op! If it is a value, it needs to be turned into one!
+        // TODO SEB: force T to be an op! If it is a value, it needs to be turned into one!
+        // TODO SEB: force T to be an op! If it is a value, it needs to be turned into one!
         
         if(belonging_tape.expired()) throw std::logic_error("This SOutType's tape has been destroyed. Assignment must happen within same scope!");
 
