@@ -108,6 +108,13 @@ decltype(auto) operator/(T1&& x1, T2&& x2) {
     bo->evaluate();
     return SType(bo);
 }
+template<typename T1, typename T2> requires (is_stype_v<T1> || is_stype_v<T2>) //is_base_of_either<S, T1, T2>::value 
+decltype(auto) pow(T1&& x1, T2&& x2) {
+    // auto*&& bo = new binary_value_op<Divide, double, T1, T2>(std::forward<T1>(x1), std::forward<T2>(x2));
+    auto*&& bo = binary_creator<Pow, double>::create_val_op_pointer(std::forward<T1>(x1), std::forward<T2>(x2));
+    bo->evaluate();
+    return SType(bo);
+}
 
 
 // =========== Value Ops unary ===============

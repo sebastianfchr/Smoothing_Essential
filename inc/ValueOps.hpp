@@ -31,6 +31,11 @@ struct Divide {
     static decltype(auto) partial_x1(auto&& x1, auto&& x2, auto&& adjoint) { return 1./x2*adjoint; }
     static decltype(auto) partial_x2(auto&& x1, auto&& x2, auto&& adjoint) { return -x1/(x2*x2)*adjoint; }
 };
+struct Pow { // x1^x2
+    static decltype(auto) eval(auto&& x1, auto&& x2) { return pow(x1,x2); }
+    static decltype(auto) partial_x1(auto&& x1, auto&& x2, auto&& adjoint) { return pow(x1, x2-1) * x2 *adjoint; }
+    static decltype(auto) partial_x2(auto&& x1, auto&& x2, auto&& adjoint) { return pow(x1, x2) * log(x1); }
+};
 
 
 // =================  Arithmetic Unary =================
